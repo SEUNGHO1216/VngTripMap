@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>VngTripMap | Sign-up</title>
+    <link rel="stylesheet" href="/css/signup.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+    <script>
+        function register(){
+            const id = $('#id').val();
+            const pw = $('#password').val();
+            let data = {id : id, pw: pw}
+            console.log(data);
+            $.ajax({
+                type:"POST",
+                url:"/member/signup",
+                contentType: "application/json",
+                data: JSON.stringify(data),
+                success:function (response){
+                    alert("회원가입 성공. 로그인 페이지로 이동합니다.")
+                    window.location.href="/member/login";
+                },
+                error:function (response){
+                    alert(response.responseText);
+                }
+            })
+        }
+    </script>
+    <div id="signup-box">
+        <h1>회원가입</h1>
+        <div>
+            <label for="id">아이디</label>
+            <input type="text" id="id" name="id" placeholder="아이디를 입력하세요" required>
+        </div>
+        <div>
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        <div>
+            <button type="button" onclick="register()">가입하기</button>
+            <button onclick="window.history.back()">뒤로가기</button>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport"-->
+<!--          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">-->
+<!--    <meta http-equiv="X-UA-Compatible" content="ie=edge">-->
+<!--    <link rel="preconnect" href="https://fonts.gstatic.com">-->
+<!--    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">-->
+<!--    <link rel="stylesheet" type="text/css" href="/css/style.css">-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>회원가입 페이지</title>-->
+<!--    <script>-->
+<!--        function onclickAdmin() {-->
+<!--// Get the checkbox-->
+<!--            var checkBox = document.getElementById("admin-check");-->
+<!--// Get the output text-->
+<!--            var box = document.getElementById("admin-token");-->
+
+<!--// If the checkbox is checked, display the output text-->
+<!--            if (checkBox.checked == true){-->
+<!--                box.style.display = "block";-->
+<!--            } else {-->
+<!--                box.style.display = "none";-->
+<!--            }-->
+<!--        }-->
+<!--    </script>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div id="login-form">-->
+<!--    <div id="login-title">Sign up Select Shop</div>-->
+
+<!--    <form action="/user/signup" method="post">-->
+<!--        <div class="login-id-label">Username</div>-->
+<!--        <input type="text" name="username" placeholder="Username" class="login-input-box">-->
+
+<!--        <div class="login-id-label">Password</div>-->
+<!--        <input type="password" name="password" class="login-input-box">-->
+
+<!--        <div class="login-id-label">E-mail</div>-->
+<!--        <input type="text" name="email" placeholder="E-mail" class="login-input-box">-->
+
+<!--        <div>-->
+<!--            <input id="admin-check" type="checkbox" name="admin" onclick="onclickAdmin()" style="margin-top: 40px;">관리자-->
+<!--            <input id="admin-token" type="password" name="adminToken" placeholder="관리자 암호" class="login-input-box" style="display:none">-->
+<!--        </div>-->
+<!--        <button id="login-id-submit">회원 가입</button>-->
+<!--    </form>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

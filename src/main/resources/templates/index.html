@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>VngTripMap | Main</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript"
+            src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=kf30ewqusr"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=1ac158485a93f8bbe6628c86b2fa23fe&libraries=services"></script>
+
+</head>
+<body>
+<div id="navbar">
+    <div id="navtitle">
+        VngTripMap
+    </div>
+    <div id="navlist">
+        <div th:if="${userInfo==null}" id="nav-login-btn" onclick="location.href='/member/login'">로그인</div>
+        <div th:unless="${userInfo==null}" id="nav-logout-btn">
+            <div th:text="${userInfo}" id="login-user"></div>
+            <form id="logout-form" method="post" action="/member/logout">
+                <div onclick="document.getElementById('logout-form').submit();">로그아웃</div>
+            </form>
+        </div>
+        <div id="nav-signup-btn" onclick="location.href='/member/signup'">회원가입</div>
+    </div>
+</div>
+<div id="map"></div>
+<!--현재 날짜-->
+<div id="infoBox">
+    <div id="infoTitle">현재 날짜</div>
+    <div id="infoContent">2022.08.09</div>
+</div>
+<!--현재 위치-->
+<div id="current">현재 위치</div>
+<!--검색 박스-->
+<div id="search">
+    <input type="text" id="search_input" placeholder="목적지를 입력해주세요">
+    <button id="search_button">검색</button>
+</div>
+
+<script>
+    // function logout() {
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "/member/logout",
+    //         success: function (response) {
+    //             alert("로그아웃  완료");
+    //         }
+    //
+    //     })
+    // }
+
+    //지도 옵션
+    var mapOptions = {
+        center: new naver.maps.LatLng(37.563776, 126.984698),
+        zoom: 12
+    };
+    //지도 생성
+    var map = new naver.maps.Map('map', mapOptions);
+
+    var markerList = [];
+    var infowindowList = [];
+
+    /*
+    //data.js에 있는 내용을 반복문 수행하며 마커 생성
+    for(var i in data){
+        var target = data[i];
+        //마커의 좌표
+        var latlng = new naver.maps.LatLng(target.lat, target.lng);
+
+        marker = new naver.maps.Marker({
+            map: map,
+            position: latlng, //마커 찍히는 좌표
+            icon: {
+                content: "<div class='icon'></div>",
+                anchor: new naver.maps.Point(12,12) //마커의 중앙점 표시
+            }
+        });
+
+        var content = `<div class='infowindow_wrap'>
+                                <div class='infowindow_title'>${target.title}</div>
+                                <div class='infowindow_content'>${target.content}</div>
+                                <div class='infowindow_date'>${target.date}</div>
+                            </div>`
+
+
+        //마커의 인포박스 생성
+        var infowindow = new naver.maps.InfoWindow({
+            content : content,
+            backgroundColor: "#00ff0000",
+            borderColor: "#00ff0000",
+            anchorSize: new naver.maps.Size(0, 0),//설명 박스에서 마커에 대한 꼬리표(화살표) 사이즈
+        });
+        markerList.push(marker);
+        infowindowList.push(infowindow);
+    }*/
+
+    //클릭 이벤트 생성
+    for (var i = 0; i < markerList.length; i++) {
+        naver.maps.Event.addListener(map, "click", clickMap(i));
+        naver.maps.Event.addListener(markerList[i], "click", getClickHandler(i));
+    }
+
+    //마커가 아닌 일반 지도를 누를 시 인포박스가 사라지게 함
+    function clickMap(i) {
+        return function () {
+            var infowindow = infowindowList[i];
+            infowindow.close();
+
+        }
+    }
+
+    //마커 클릭시 이벤트
+    function getClickHandler(i) {
+        return function () {
+            var marker = markerList[i];
+            var infowindow = infowindowList[i];
+
+            //인포가 열려있으면 다시 클릭 시 닫고 , 닫혀있으면 열기 위한 토글
+            if (infowindow.getMap()) {
+                infowindow.close();
+            } else {
+                infowindow.open(map, marker);
+            }
+        }
+    }
+
+    //현재 위치 클릭시 지도에 펄스로 나타내는 jQuery함수
+    let currentUse = true;
+    $('#current').click(() => {
+        //위치정보에 대한 코드는 크롬 같은 각 브라우저가 내장으로 갖고있다
+        /*Navigator 인터페이스는 사용자 에이전트의 상태와 신원 정보를 나타내며, 스크립트로 해당 정보를 질의할 때와 애플리케이션을 특정 활동에 등록할 때 사용합니다.*/
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const LatLng = new naver.maps.LatLng(lat, lng);
+                if (currentUse) {
+                    marker = new naver.maps.Marker({
+                        map: map,
+                        position: LatLng, //마커 찍히는 좌표
+                        icon: {
+                            //드래그도 안 되고 선택도 할 수 없는 마크 이미지라는 것을 표현
+                            content: "<img class='pulse' draggable='false' unselectable='on' src='https://myfirstmap.s3.ap-northeast-2.amazonaws.com/circle.png'>",
+                            anchor: new naver.maps.Point(11, 11) //마커의 중앙점 표시
+                        }
+                    });
+                    //첫 클릭시에만 현재 위치 찍을 수 있도록 방지
+                    currentUse = false;
+                }
+                //현재 위치 찍고 그곳으로 이동하는게 편리, false는 이동하는 animaition은 보여주지 않겠다
+                map.setZoom(14, false);
+                map.panTo(LatLng);//화면 상 멀리 있어도 현재 위치로 이동
+            });
+        } else {
+            alert('위치정보 사용 불가');
+
+        }
+    })
+    //keydown이벤트로 트리거를 걸어서 엔터시 검색할 수 있도록 이벤트 생성
+    let ps = new kakao.maps.services.Places();
+    $('#search_input').on('keydown', function (test) {
+        //엔터의 키코드가 13번임
+        if (test.keyCode === 13) {
+            let content = $(this).val();
+            ps.keywordSearch(content, callback, options);
+
+        }
+    })
+    //click이벤트로 트리거를 걸어서 검색 클릭 시 검색할 수 있도록 이벤트 생성
+    $('#search_button').on('click', function (e) {
+
+        let content = $('#search_input').val();
+        console.log("클릭시 검색결과>>" + content)
+        ps.keywordSearch(content, callback, options);
+    })
+
+    let search_arr = [];
+
+    //검색 콜백함수
+    function callback(result, status, pagination) {
+        let latSum = 0;
+        let lngSum = 0;
+        let placeCount = 0;
+        if (status === kakao.maps.services.Status.OK) {
+            for (let place of result) {
+                console.log(place);
+                const lat = place.y;
+                const lng = place.x;
+                const latlng = new naver.maps.LatLng(lat, lng);
+                marker = new naver.maps.Marker({
+                    map: map,
+                    position: latlng, //마커 찍히는 좌표
+                    icon: {
+                        content: "<div class='kakao-icon'></div>",
+                        anchor: new naver.maps.Point(12, 12) //마커의 중앙점 표시
+                    }
+                });
+
+                search_arr.push(marker);
+
+                //형변환을 해주며 각 좌표의 합을 구함
+                latSum += parseFloat(lat);
+                lngSum += parseFloat(lng);
+                placeCount += 1;
+            }
+
+            //검색 결과에 따라 마커를 찍을 때 기존 마커를 지워주고 새로 검색한 마커만 찍히게 하기 위함
+            if (search_arr.length > 0) {
+                //삭제할 길이(search_arr.length에는 바로 전 검색 기록 개수와 현재 검색 기록 개수가 둘다 들어감,
+                //그 상태에서 현재 검색 기록의 갯수인 placeCount를 빼면 전 검색 기록 개수만 나올 것임,
+                //그에 따라 전 검색 기록을 search_arr에서 삭제하고 전 검색기록 하나하나의 map을 null로 변환)
+                let deleteLenght = search_arr.length - placeCount;
+                let pre_marker = search_arr.splice(0, deleteLenght);
+                console.log("프리마커" + pre_marker);
+                for (let deleteMarker of pre_marker) {
+                    deleteMarker.setMap(null);
+                }
+            }
+
+
+            //장소들의 중앙점으로 가기위해 좌표의 평균을 구함
+            let latAvg = latSum / placeCount;
+            let lngAvg = lngSum / placeCount;
+            map.setZoom(14, false);
+            const latlng = new naver.maps.LatLng(latAvg, lngAvg);
+            map.panTo(latlng);
+        } else {
+            alert('검색 결과가 없습니다');
+        }
+    };
+    let options = {
+        size: 10,
+        page: 1
+    }
+
+</script>
+</body>
+</html>
