@@ -20,6 +20,10 @@
 </head>
 <body>
 <div id="navbar">
+    <div id="list-icon">
+        <img src="/images/dots32.png" id="closeInfo" onclick="closeInfo()" alt="리스트닫기">
+        <img src="/images/check48.png" id="openInfo" style="display: none" onclick="openInfo()" alt="리스트열기">
+    </div>
     <div id="navtitle">
         VngTripMap
     </div>
@@ -35,30 +39,35 @@
     </div>
 </div>
 <div id="map"></div>
-<!--현재 날짜-->
-<div id="infoBox">
-    <div id="infoTitle">현재 날짜</div>
-    <div id="infoContent">2022.08.09</div>
+<!--좌측 필터링 박스-->
+<div id="left-filter-box">
 </div>
-<!--현재 위치-->
-<div id="current">현재 위치</div>
+
 <!--검색 박스-->
 <div id="search">
     <input type="text" id="search_input" placeholder="목적지를 입력해주세요">
     <button id="search_button">검색</button>
 </div>
 
+<!--현재 위치-->
+<div id="current">
+    <img src="/images/target24.png" id="target-icon" alt="현재 위치">
+</div>
+
 <script>
-    // function logout() {
-    //     $.ajax({
-    //         type: "POST",
-    //         url: "/member/logout",
-    //         success: function (response) {
-    //             alert("로그아웃  완료");
-    //         }
-    //
-    //     })
-    // }
+    function closeInfo(){
+        $('#closeInfo').hide();
+        $('#openInfo').show();
+
+        $('#left-filter-box').hide();
+    }
+
+    function openInfo(){
+        $('#closeInfo').show();
+        $('#openInfo').hide();
+
+        $('#left-filter-box').show();
+    }
 
     //지도 옵션
     var mapOptions = {

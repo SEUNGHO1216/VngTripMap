@@ -20,6 +20,16 @@ body {
     justify-content: center;
     align-items: center;
 }
+#list-icon{
+    position:absolute;
+    left: 20px;
+    bottom: -5px;
+    cursor:pointer;
+}
+#closeInfo{
+    position: absolute;
+    bottom:15px;
+}
 #navlist{
     position: absolute;
     font-size: 16px;
@@ -44,6 +54,18 @@ body {
 #map{
     width: 100%;
     height: 100vh;
+}
+#left-filter-box{
+    position: absolute;
+    top: 50px;
+    left: 10px;
+    width: 25%;
+    height: 90vh;
+    z-index: 10000;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.15);
+
 }
 
 #infoBox{
@@ -90,16 +112,20 @@ body {
 }
 #current{
     position: absolute;
-    top:180px;
-    left:50px;
-    padding: 15px;
+    width:30px;
+    height: 30px;
+    right:20px;
+    bottom:50px;
     z-index: 10000; /*우선순위 -> 숫자가 높을 수록 먼저 보임(같다면 더 나중에 작성한 것)*/
     background-color: #fff;
-    text-align: center;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 4px;
     cursor: pointer;
-    font-weight: bolder;
+}
+#target-icon{
+    position: absolute;
+    top:3px;
+    left: 3px;
 }
 .kakao-icon{
     width: 24px;
@@ -121,9 +147,9 @@ body {
 
 #search{
     position: absolute;
-    width: 500px;
-    top: 100px;
-    left: 200px;
+    width: 25%;
+    top: 80px;
+    left: 37%;
     padding: 15px;
     z-index: 10000;
     background-color: #fff;
@@ -134,7 +160,7 @@ body {
 
 #search_input{
     border: none;
-    width: 400px;
+    width:80%;
 }
 
 #search_input:focus{
